@@ -94,6 +94,24 @@ namespace TaskMaster.Services
             }
         }
 
+        /// <inheritdoc/>
+        public async Task SetLeader(Project project, Employee employee)
+        {
+            bool leaderIsProjectMember = employee.Projects.Any(p => p.Id == project.Id);
+            if (!leaderIsProjectMember)
+            {
+                employee.Projects.Add(project);
+                _db.Employees.Update(employee);
+            }
+
+            project.Leader = employee;
+            project.LeaderId = employee.Id;
+
+            _db.Projects.Update(project);
+
+            await _db.SaveChangesAsync();
+        }
+
         #endregion Public Methods
 
         #region Private Methods

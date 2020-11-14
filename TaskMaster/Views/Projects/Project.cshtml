@@ -8,6 +8,7 @@
     ViewData["Title"] = title;
 
     string message = ViewBag.Message;
+    IEnumerable<Employee> employees = ViewBag.Employees;
 }
 
 <div class="row">
@@ -31,4 +32,98 @@
         </button>
     </div>
 }
+
+<div class="row">
+    <div class="card col-12">
+        <div class="row">
+            <div class="col">
+                <dl>
+                    <dt>Beggining date</dt>
+                    <dd>@Model.BegginingDate.ToShortDateString()</dd>
+                    <dt>Completion date</dt>
+                    <dd>@Model.CompletionDate.ToShortDateString()</dd>
+                </dl>
+            </div>
+
+            <div class="col">
+                <dl>
+                    <dt>Customer</dt>
+                    <dd>@Model.CustomerCompanyName</dd>
+                    <dt>Executor</dt>
+                    <dd>@Model.ExecutorCompanyName</dd>
+                </dl>
+            </div>
+
+            <div class="col">
+                <dl>
+                    <dt>Leader</dt>
+                    <dd>
+                        @Html.RouteLink($"{Model.Leader.FirstName} {Model.Leader.LastName}", EmployeePageRouteName, new { id = Model.Leader.Id })
+                    </dd>
+                    <dt>
+                        Members count
+                    </dt>
+                    <dd>
+                        @Model.Members.Count
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="card col-6">
+        <div class="card-body">
+            <h4 class="card-title">Project members</h4>
+            @foreach (var person in Model.Members)
+            {
+                bool isLeader = person.Id == Model.Leader.Id;
+
+                <div class="row">
+                    <div class="col">
+                        @Html.RouteLink($"{person.FirstName} {person.LastName}", EmployeePageRouteName, new { id = person.Id })
+                        @if (isLeader)
+                        {
+                            <span>(Leader)</span>
+                        }
+                    </div>
+                    <div class="col btn btn-block btn-group">
+                        @Html.RouteLink(
+                            "Make leader",
+                            SetLeaderOfProjectRouteName,
+                            new { projectId = Model.Id, memberId = person.Id },
+                            new { @class = "btn btn-success" + (isLeader ? " disabled" : "") })
+                        @Html.RouteLink(
+                            "Remove",
+                            RemoveEmployeeFromProjectMembersRouteName,
+                            new { projectId = Model.Id, memberId = person.Id },
+                            new { @class = "btn btn-danger" })
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card col-6">
+        <div class="card-body">
+            <h4 class="card-title">Add employees</h4>
+            @foreach (var person in employees.Except(Model.Members))
+            {
+                <div class="row">
+                    <div class="col">
+                        @Html.RouteLink($"{person.FirstName} {person.LastName}", EmployeePageRouteName, new { id = person.Id })
+                    </div>
+                    <div class="col btn btn-block btn-group">
+                        @Html.RouteLink(
+                            "Add to project",
+                            AddEmployeeToProjectMembersRouteName,
+                            new { projectId = Model.Id, memberId = person.Id },
+                            new { @class = "btn btn-success" })
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 

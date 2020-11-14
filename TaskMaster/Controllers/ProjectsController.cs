@@ -169,7 +169,11 @@ namespace TaskMaster.Controllers
                 return NotFound();
             }
 
+            var persons = await _personsRepository.GetEmployeesAsync();
+            ViewBag.Employees = persons;
+
             LoadMessage();
+
             return View("Project", project);
         }
 
@@ -228,6 +232,32 @@ namespace TaskMaster.Controllers
             {
                 SaveMessage("Leader of project can not be removed from project members list. Change project leader and try again.");
             }
+
+            return RedirectToRoute(ProjectPageRouteName, new { id = project.Id });
+        }
+
+        /// <summary>
+        /// Makes employee with id <paramref name="memberId"/> leader of project <paramref name="projectId"/>.
+        /// </summary>
+        /// <param name="projectId">Project identifier.</param>
+        /// <param name="memberId">Employee identifier.</param>
+        [Route("project/{projectId}/makeLeader/{memberId}", Name = SetLeaderOfProjectRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> SetLeader(int projectId, int memberId)
+        {
+            var project = await _projectsRepository.GetProjectAsync(projectId);
+            if (project is null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _personsRepository.GetEmployeeAsync(memberId);
+            if (employee is null)
+            {
+                return NotFound();
+            }
+
+            await _projectsRepository.SetLeader(project, employee);
 
             return RedirectToRoute(ProjectPageRouteName, new { id = project.Id });
         }

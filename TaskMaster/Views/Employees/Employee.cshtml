@@ -60,7 +60,9 @@
 
                         <div class="card @cardStyle col">
                             <div class="card-body">
-                                <h5 class="card-title">@project.Name</h5>
+                                <h5 class="card-title">
+                                    @Html.RouteLink(project.Name, ProjectPageRouteName, new { id = project.Id })
+                                </h5>
                                 <p>Employee role in project: @role</p>
                             </div>
                         </div>

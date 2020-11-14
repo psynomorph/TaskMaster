@@ -1,10 +1,25 @@
-﻿@{ 
+﻿@using static TaskMaster.Helpers.RouteNames
+
+@{
     Layout = "_Layout";
 }
 
 <div class="row">
     <div class="col-3">
-        &nbsp;
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Links</h5>
+                <ul>
+                    <li>
+                        <a asp-route="@ProjectsListPageRouteName">Projects</a>
+                    </li>
+                    <li>
+                        <a asp-route="@EmployeeListRouteName">Employees</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        @RenderSection("Sidebar", false)
     </div>
     <div class="col-9">
         @RenderBody()

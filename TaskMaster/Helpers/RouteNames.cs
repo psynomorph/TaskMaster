@@ -22,5 +22,6 @@
         public const string DeleteProjectEndpointRouteName = "DeleteProjectEndpoint";
         public const string AddEmployeeToProjectMembersRouteName = "AddEmployeeToProjectMembers";
         public const string RemoveEmployeeFromProjectMembersRouteName = "RemoveEmployeeFromProjectMembers";
+        public const string SetLeaderOfProjectRouteName = "SetProjectLeader";
     }
 }

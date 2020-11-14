@@ -1,7 +1,9 @@
 ﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames
+
 @model IEnumerable<Project>
 
-@{ 
+@{
     Layout = "_ListLayout";
 
     string title = "Projects";
@@ -9,10 +11,44 @@
 }
 
 <h1>@title</h1>
-
+@Html.RouteLink("Craete new", CreateProjectPageRouteName, new object(), new { @class = "btn btn-primary float-right" })
 <div class="row">
     @foreach (var project in Model)
     {
-        <p>@project.Name</p>
+        <div class="card col-12">
+            <div class="card-body">
+                <h5 class="card-title">
+                    @Html.RouteLink(project.Name, ProjectPageRouteName, new { id = project.Id })
+                </h5>
+                <div class="row">
+                    <div class="col">
+                        <dl>
+                            <dt>Beggining date</dt>
+                            <dd>@project.BegginingDate.ToShortDateString()</dd>
+                            <dt>Completion date</dt>
+                            <dd>@project.CompletionDate.ToShortDateString()</dd>
+                        </dl>
+                    </div>
+
+                    <div class="col">
+                        <dl>
+                            <dt>Customer</dt>
+                            <dd>@project.CustomerCompanyName</dd>
+                            <dt>Executor</dt>
+                            <dd>@project.ExecutorCompanyName</dd>
+                        </dl>
+                    </div>
+
+                    <div class="col">
+                        <dl>
+                            <dt>Leader</dt>
+                            <dd>
+                                @Html.RouteLink($"{project.Leader.FirstName} {project.Leader.LastName}", EmployeePageRouteName, new { id = project.Leader.Id })
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>

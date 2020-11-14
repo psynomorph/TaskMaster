@@ -47,5 +47,13 @@ namespace TaskMaster.Services
         /// <param name="project">Project.</param>
         /// <param name="employee">Employee for remove.</param>
         Task RemoveProjectMemberAsync(Project project, Employee employee);
+
+        /// <summary>
+        /// Makes <paramref name="employee"/> leader of <paramref name="project"/>.
+        /// </summary>
+        /// <param name="project">Project.</param>
+        /// <param name="employee">Employee.</param>
+        /// <returns></returns>
+        Task SetLeader(Project project, Employee employee);
     }
 }
