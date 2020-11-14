@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,14 +30,13 @@ namespace TaskMaster
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStatusCodePages();
+            app.UseStaticFiles();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllers();
             });
         }
 
@@ -58,8 +56,8 @@ namespace TaskMaster
 
             services.AddControllersWithViews();
 
-            services.AddTransient<IProjectRepository, ProjectsRepository>();
-            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+            services.AddTransient<IProjectRepository, ProjectsEfRepository>();
+            services.AddTransient<IEmployeeRepository, EmployeeEfRepository>();
         }
     }
 }

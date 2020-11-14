@@ -1,0 +1,23 @@
+﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames
+
+@model IEnumerable<Employee>
+
+@{
+    Layout = "_ListLayout";
+
+    string title = "Employees";
+    ViewData["Title"] = title;
+}
+
+<h1>@title</h1>
+@Html.RouteLink("Craete new", EmployeeAddingPageRouteName, new object(), new { @class = "btn btn-primary float-right" })
+<ul>
+    @foreach (var employee in Model)
+    {
+        <li>
+            @Html.RouteLink($"{employee.FirstName} {employee.LastName}", EmployeePageRouteName, new { id = employee.Id })
+            (<a href="mailto:@employee.Email">@employee.Email</a>)
+        </li>
+    }
+</ul>

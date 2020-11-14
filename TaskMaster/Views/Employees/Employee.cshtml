@@ -1,0 +1,76 @@
+﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames;
+
+@model Employee
+
+@{
+    string employeeName = $"{Model.FirstName} {Model.LastName}";
+    ViewData["Title"] = employeeName;
+}
+
+
+<div class="row">
+    <div class="col-10">
+        <h1>@employeeName</h1>
+    </div>
+    <div class="col-2">
+        <div class="btn-group btn-block btn">
+            @Html.RouteLink("Edit", EditEmployeePageRouteName, new { id = Model.Id }, new { @class = "btn btn-primary" })
+            @Html.RouteLink("Delete", DeleteEmployeeRouteName, new { id = Model.Id }, new { @class = "btn btn-danger" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6 card">
+        <div class="card-body">
+            <h3 class="card-title">
+                Information
+            </h3>
+            <dl>
+                <dt>First name</dt>
+                <dd>@Model.FirstName</dd>
+                <dt>Last name</dt>
+                <dd>@Model.LastName</dd>
+                @if (!string.IsNullOrEmpty(Model.Patronymic))
+                {
+                    <dt>Patronymic name</dt>
+                    <dd>@Model.Patronymic</dd>
+                }
+                <dt>Email</dt>
+                <dd>
+                    <a href="mailto:@Model.Email">@Model.Email</a>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="col-sm-6 card">
+        <div class="card-body">
+            <h3 class="card-title">Projects</h3>
+            <div class="row">
+                @if (Model.Projects.Any())
+                {
+                    @foreach (var project in Model.Projects)
+                    {
+                        bool isLeadsProject = Model.ProjectsWithLeadership.Contains(project);
+                        string role = isLeadsProject ? "Leader" : "Member";
+                        string cardStyle = isLeadsProject
+                                    ? "bg-info text-white"
+                                    : "bg-light";
+
+                        <div class="card @cardStyle col">
+                            <div class="card-body">
+                                <h5 class="card-title">@project.Name</h5>
+                                <p>Employee role in project: @role</p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>@employeeName does not participate in any project.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

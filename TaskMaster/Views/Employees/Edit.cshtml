@@ -1,0 +1,50 @@
+﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames
+@model Employee
+
+@{
+    string pageTitle = Model.IsNew()
+        ? "Create new employee"
+        : pageTitle = $"Edit employee {Model.LastName} {Model.FirstName}";
+
+    ViewData["Title"] = pageTitle;
+
+    MvcForm BeginForm()
+        => Model.IsNew()
+            ? Html.BeginRouteForm(AddEmployeeEndpointRouteName, FormMethod.Post)
+            : Html.BeginRouteForm(UpdateEmployeeEndpointRouteName, FormMethod.Post);
+}
+
+<h1>@pageTitle</h1>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@using (BeginForm())
+{
+    @Html.HiddenFor(employee => employee.Id)
+    <div class="form-row">
+        <div class="form-group col-sm-4">
+            <label asp-for="FirstName">First name</label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName"/>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label asp-for="LastName">Last name</label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName"/>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label asp-for="Patronymic">Patronymic</label>
+            <input asp-for="Patronymic" class="form-control" />
+            <span asp-validation-for="Patronymic" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-sm-6">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" type="text" />
+            <span asp-validation-for="Email"/>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+}
