@@ -1,0 +1,71 @@
+﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames
+
+@model Project
+
+@{
+    IEnumerable<Employee> employees = (IEnumerable<Employee>)ViewBag.Employees;
+    IEnumerable<SelectListItem> employeesItems = employees
+        .Select(e => new SelectListItem($"{e.FirstName} {e.LastName}", e.Id.ToString()));
+
+    string pageTitle = Model.IsNew()
+        ? "Create new project"
+        : pageTitle = $"Edit project {Model.Name}";
+
+    ViewData["Title"] = pageTitle;
+
+    MvcForm BeginForm()
+        => Model.IsNew()
+            ? Html.BeginRouteForm(CreateProjectEndpointRouteName, FormMethod.Post)
+            : Html.BeginRouteForm(EditProjectEndpointRouteName, new { id = Model.Id }, FormMethod.Post);
+}
+
+<h1>@pageTitle</h1>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@using (BeginForm())
+{
+    @Html.HiddenFor(m => m.Id)
+    <div class="form-row">
+        <div class="col-sm-12 form-group">
+            <label asp-for="Name">Project name</label>
+            <input class="form-control" type="text" asp-for="Name" />
+            <span asp-validation-for="Name" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-sm-6 form-group">
+            <label asp-for="CustomerCompanyName">Customer company</label>
+            <input class="form-control" type="text" asp-for="CustomerCompanyName" />
+            <span asp-validation-for="CustomerCompanyName" />
+        </div>
+
+        <div class="col-sm-6 form-group">
+            <label asp-for="ExecutorCompanyName">Executor company</label>
+            <input class="form-control" type="text" asp-for="ExecutorCompanyName" />
+            <span asp-validation-for="ExecutorCompanyName" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-sm-6 form-group">
+            <label asp-for="BegginingDate">Project beggining date</label>
+            <input class="form-control" type="date" asp-for="BegginingDate" />
+            <span asp-validation-for="BegginingDate" />
+        </div>
+
+        <div class="col-sm-6 form-group">
+            <label asp-for="CompletionDate">Project completion date</label>
+            <input class="form-control" type="date" asp-for="CompletionDate" />
+            <span asp-validation-for="CompletionDate" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-sm-6 form-group">
+            <label asp-for="LeaderId">Leader of project</label>
+            <select asp-for="LeaderId" asp-items="@employeesItems" class="form-control"></select>
+            <span asp-validation-for="LeaderId" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+}

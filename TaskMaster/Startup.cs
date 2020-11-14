@@ -32,6 +32,7 @@ namespace TaskMaster
 
             app.UseStatusCodePages();
             app.UseStaticFiles();
+            app.UseSession();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -49,7 +50,7 @@ namespace TaskMaster
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DatabaseContext>(options =>
                 options
-                .LogTo(Console.WriteLine)
+                //.LogTo(Console.WriteLine)
                 //.EnableDetailedErrors()
                 //.EnableSensitiveDataLogging()
                 .UseSqlite(connectionString));
@@ -58,6 +59,9 @@ namespace TaskMaster
 
             services.AddTransient<IProjectRepository, ProjectsEfRepository>();
             services.AddTransient<IEmployeeRepository, EmployeeEfRepository>();
+
+            services.AddDistributedMemoryCache();
+            services.AddSession();
         }
     }
 }

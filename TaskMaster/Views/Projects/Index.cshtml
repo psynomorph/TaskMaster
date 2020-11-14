@@ -1,0 +1,18 @@
+﻿@using TaskMaster.Models
+@model IEnumerable<Project>
+
+@{ 
+    Layout = "_ListLayout";
+
+    string title = "Projects";
+    ViewData["Title"] = title;
+}
+
+<h1>@title</h1>
+
+<div class="row">
+    @foreach (var project in Model)
+    {
+        <p>@project.Name</p>
+    }
+</div>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,6 +38,13 @@ namespace TaskMaster.Services
         #region Public Methods
 
         /// <inheritdoc/>
+        public async Task AddProjectMemberAsync(Project project, Employee employee)
+        {
+            project.Members.Add(employee);
+            await _db.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task DeleteProjectAsync(Project project)
         {
             _db.Projects.Remove(project);
@@ -59,6 +67,18 @@ namespace TaskMaster.Services
             return await _db.Projects
                 .Include(project => project.Leader)
                 .ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task RemoveProjectMemberAsync(Project project, Employee employee)
+        {
+            if (project.LeaderId == employee.Id)
+            {
+                throw new Exception("Project leader can not be removed from members list!"); // TODO: create custom exception.
+            }
+
+            project.Members.Remove(employee);
+            await _db.SaveChangesAsync();
         }
 
         /// <inheritdoc/>
@@ -85,6 +105,7 @@ namespace TaskMaster.Services
         private async Task AddProjectAsync(Project project)
         {
             var employee = await _db.Employees.FindAsync(project.LeaderId);
+            project.Members = new List<Employee>();
             project.Members.Add(employee);
             _db.Projects.Add(project);
             await _db.SaveChangesAsync();
@@ -96,6 +117,20 @@ namespace TaskMaster.Services
         /// <param name="project">Project model with new data.</param>
         private async Task UpdateProjectAsync(Project project)
         {
+            var leader = await _db
+                .Employees
+                .AsNoTracking()
+                .Include(employee => employee.Projects)
+                .FirstAsync(employee => employee.Id == project.LeaderId);
+
+            bool leaderIsProjectMember = leader.Projects.Any(p => p.Id == project.Id); 
+
+            if (!leaderIsProjectMember)
+            {
+                leader.Projects.Add(project);
+                _db.Employees.Update(leader);
+            }
+
             _db.Projects.Update(project);
             await _db.SaveChangesAsync();
         }

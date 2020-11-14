@@ -33,5 +33,19 @@ namespace TaskMaster.Services
         /// </summary>
         /// <param name="project">Project to delete.</param>
         Task DeleteProjectAsync(Project project);
+
+        /// <summary>
+        /// Add <paramref name="employee"/> to list of <paramref name="project"/> members.
+        /// </summary>
+        /// <param name="project">Project.</param>
+        /// <param name="employee">Employee to add to project.</param>
+        Task AddProjectMemberAsync(Project project, Employee employee);
+
+        /// <summary>
+        /// Remove <paramref name="employee"/> from list of project members.
+        /// </summary>
+        /// <param name="project">Project.</param>
+        /// <param name="employee">Employee for remove.</param>
+        Task RemoveProjectMemberAsync(Project project, Employee employee);
     }
 }

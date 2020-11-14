@@ -1,0 +1,34 @@
+﻿@using TaskMaster.Models
+@using static TaskMaster.Helpers.RouteNames;
+
+@model Project
+
+@{
+    string title = Model.Name;
+    ViewData["Title"] = title;
+
+    string message = ViewBag.Message;
+}
+
+<div class="row">
+    <div class="col-10">
+        <h1>@title</h1>
+    </div>
+    <div class="col-2">
+        <div class="btn-group btn-block btn">
+            @Html.RouteLink("Edit", EditProjectPageRouteName, new { id = Model.Id }, new { @class = "btn btn-primary" })
+            @Html.RouteLink("Delete", DeleteProjectEndpointRouteName, new { id = Model.Id }, new { @class = "btn btn-danger" })
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-dismissible fade show alert-info" role="alert">
+        <p>@message</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+

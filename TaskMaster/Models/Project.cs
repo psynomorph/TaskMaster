@@ -43,7 +43,7 @@ namespace TaskMaster.Models
         [Required]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         [DataType(DataType.Date)]
-        public DateTime BegginingDate { get; set; }
+        public DateTime BegginingDate { get; set; } = DateTime.Today;
 
         /// <summary>
         /// Date of project completion.
@@ -51,7 +51,7 @@ namespace TaskMaster.Models
         [Required]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         [DataType(DataType.Date)]
-        public DateTime CompletionDate { get; set; }
+        public DateTime CompletionDate { get; set; } = DateTime.Today;
 
         /// <summary>
         /// Identifier of project leader.
