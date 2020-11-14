@@ -12,7 +12,7 @@
     MvcForm BeginForm()
         => Model.IsNew()
             ? Html.BeginRouteForm(AddEmployeeEndpointRouteName, FormMethod.Post)
-            : Html.BeginRouteForm(UpdateEmployeeEndpointRouteName, FormMethod.Post);
+            : Html.BeginRouteForm(UpdateEmployeeEndpointRouteName, new { id = Model.Id }, FormMethod.Post);
 }
 
 <h1>@pageTitle</h1>
