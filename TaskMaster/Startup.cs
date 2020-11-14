@@ -57,6 +57,9 @@ namespace TaskMaster
                 .UseSqlite(connectionString));
 
             services.AddControllersWithViews();
+
+            services.AddTransient<IProjectRepository, ProjectsRepository>();
+            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
         }
     }
 }
