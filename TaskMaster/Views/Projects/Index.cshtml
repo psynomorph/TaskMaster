@@ -45,6 +45,10 @@
                             <dd>
                                 @Html.RouteLink($"{project.Leader.FirstName} {project.Leader.LastName}", EmployeePageRouteName, new { id = project.Leader.Id })
                             </dd>
+                            <dt>Priority</dt>
+                            <dd>
+                                @project.Priority
+                            </dd>
                         </dl>
                     </div>
                 </div>

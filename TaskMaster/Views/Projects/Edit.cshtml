@@ -8,6 +8,9 @@
     IEnumerable<SelectListItem> employeesItems = employees
         .Select(e => new SelectListItem($"{e.FirstName} {e.LastName}", e.Id.ToString()));
 
+    IEnumerable<SelectListItem> priorities = Enumerable.Range(1, 10)
+        .Select(i => new SelectListItem(i.ToString(), i.ToString()));
+
     string pageTitle = Model.IsNew()
         ? "Create new project"
         : pageTitle = $"Edit project {Model.Name}";
@@ -65,6 +68,11 @@
             <label asp-for="LeaderId">Leader of project</label>
             <select asp-for="LeaderId" asp-items="@employeesItems" class="form-control"></select>
             <span asp-validation-for="LeaderId" />
+        </div>
+        <div class="col-sm-4 form-group">
+            <label asp-for="Priority">Priority</label>
+            <select asp-for="Priority" asp-items="@priorities" class="form-control"></select>
+            <span asp-validation-for="Priority" />
         </div>
     </div>
     <button type="submit" class="btn btn-success">Save</button>

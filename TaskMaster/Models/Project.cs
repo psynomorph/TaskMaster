@@ -65,6 +65,13 @@ namespace TaskMaster.Models
         public Employee Leader { get; set; }
 
         /// <summary>
+        /// Priority of project.
+        /// </summary>
+        [Required]
+        [Range(1, 10)]
+        public int Priority { get; set; } = 5;
+
+        /// <summary>
         /// Project members.
         /// </summary>
         public ICollection<Employee> Members { get; set; }
