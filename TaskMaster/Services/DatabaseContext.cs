@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaskMaster.Models;
 
 namespace TaskMaster.Services
@@ -12,15 +8,39 @@ namespace TaskMaster.Services
     /// </summary>
     public class DatabaseContext : DbContext
     {
-        public DbSet<Employee> Employees { get; set; }
+        #region Public Constructors
 
-        public DbSet<Project> Projects { get; set; }
-
+        /// <summary>
+        /// Creates database context and apply migrations if need.
+        /// </summary>
+        /// <param name="options">Database context options.</param>
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            Database.Migrate();
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        /// Database set of employees.
+        /// </summary>
+        public DbSet<Employee> Employees { get; set; }
+
+        /// <summary>
+        /// Database set of projects.
+        /// </summary>
+        public DbSet<Project> Projects { get; set; }
+
+        #endregion Public Properties
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Set up models relations params.
+        /// </summary>
+        /// <param name="modelBuilder">Model builder.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Project>(projectModelBuilder =>
@@ -35,5 +55,7 @@ namespace TaskMaster.Services
                     .HasForeignKey(project => project.LeaderId);
             });
         }
+
+        #endregion Protected Methods
     }
 }
