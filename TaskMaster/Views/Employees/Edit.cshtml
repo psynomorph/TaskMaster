@@ -8,8 +8,10 @@
         : pageTitle = $"Edit employee {Model.LastName} {Model.FirstName}";
 
     ViewData["Title"] = pageTitle;
+}
 
-    MvcForm BeginForm()
+@functions {
+    private MvcForm BeginForm()
         => Model.IsNew()
             ? Html.BeginRouteForm(AddEmployeeEndpointRouteName, FormMethod.Post)
             : Html.BeginRouteForm(UpdateEmployeeEndpointRouteName, new { id = Model.Id }, FormMethod.Post);

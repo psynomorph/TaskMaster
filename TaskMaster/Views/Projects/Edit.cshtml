@@ -16,8 +16,11 @@
         : pageTitle = $"Edit project {Model.Name}";
 
     ViewData["Title"] = pageTitle;
+}
 
-    MvcForm BeginForm()
+@functions {
+
+    private MvcForm BeginForm()
         => Model.IsNew()
             ? Html.BeginRouteForm(CreateProjectEndpointRouteName, FormMethod.Post)
             : Html.BeginRouteForm(EditProjectEndpointRouteName, new { id = Model.Id }, FormMethod.Post);
