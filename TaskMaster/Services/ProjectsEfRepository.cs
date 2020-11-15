@@ -62,11 +62,47 @@ namespace TaskMaster.Services
         }
 
         /// <inheritdoc/>
+        public async Task<int> GetProjectCountAsync(FilteringModel filtering = null)
+        {
+            if (filtering is { })
+            {
+                return await AddFiltering(_db.Projects, filtering).CountAsync();
+            }
+            return await _db.Projects.CountAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task<IEnumerable<Project>> GetProjectsAsync()
         {
             return await _db.Projects
                 .Include(project => project.Leader)
                 .ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Project>> GetProjectsAsync(SortState? sort = null, PageInfo pageInfo = null, FilteringModel filtering = null)
+        {
+            IQueryable<Project> query = _db.Projects
+                .Include(project => project.Leader);
+
+            if (filtering is { })
+            {
+                query = AddFiltering(query, filtering);
+            }
+
+            if (sort is { })
+            {
+                query = AddSorting(query, sort.Value);
+            }
+
+            if (pageInfo is { })
+            {
+                query = query
+                    .Skip((pageInfo.PageNumber - 1) * pageInfo.ElementsOnPage)
+                    .Take(pageInfo.ElementsOnPage);
+            }
+
+            return await query.ToListAsync();
         }
 
         /// <inheritdoc/>
@@ -117,6 +153,47 @@ namespace TaskMaster.Services
         #region Private Methods
 
         /// <summary>
+        /// Adds filters from <paramref name="filtering"/> to <paramref name="query"/>.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <param name="filtering">Params of filter.</param>
+        /// <returns>Modified query.</returns>
+        private static IQueryable<Project> AddFiltering(IQueryable<Project> query, FilteringModel filtering)
+        {
+            if (filtering.MinPriority is int minPriority)
+            {
+                query = query.Where(project => project.Priority >= minPriority);
+            }
+
+            if (filtering.MaxPriority is int maxPriority)
+            {
+                query = query.Where(project => project.Priority <= maxPriority);
+            }
+
+            if (filtering.MinBeginningDate is DateTime minBeginningDate)
+            {
+                query = query.Where(project => project.BegginingDate >= minBeginningDate);
+            }
+
+            if (filtering.MaxBeginningDate is DateTime maxBeginningDate)
+            {
+                query = query.Where(project => project.BegginingDate <= maxBeginningDate);
+            }
+
+            if (filtering.MinCompletionDate is DateTime minCompletionDate)
+            {
+                query = query.Where(project => project.CompletionDate >= minCompletionDate);
+            }
+
+            if (filtering.MaxCompletionDate is DateTime maxCompletiongDate)
+            {
+                query = query.Where(project => project.CompletionDate <= maxCompletiongDate);
+            }
+
+            return query;
+        }
+
+        /// <summary>
         /// Adds new project to database.
         /// </summary>
         /// <param name="project">Project.</param>
@@ -128,6 +205,30 @@ namespace TaskMaster.Services
             _db.Projects.Add(project);
             await _db.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Add ordering to query.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <param name="sort">Sorting params.</param>
+        /// <returns>Query with ordering.</returns>
+        private IQueryable<Project> AddSorting(IQueryable<Project> query, SortState sort) 
+            => sort switch
+            {
+                SortState.NameAsc => query.OrderBy(project => project.Name),
+                SortState.NameDesc => query.OrderByDescending(project => project.Name),
+
+                SortState.PriorityAsc => query.OrderBy(project => project.Priority),
+                SortState.PriorityDesc => query.OrderByDescending(project => project.Priority),
+
+                SortState.BeginningDateAsc => query.OrderBy(project => project.BegginingDate),
+                SortState.BeginningDateDesc => query.OrderByDescending(project => project.BegginingDate),
+
+                SortState.CompletionDateAsc => query.OrderBy(project => project.CompletionDate),
+                SortState.CompletionDateDesc => query.OrderByDescending(project => project.CompletionDate),
+
+                _ => throw new ArgumentException($"Unknown sorting state {sort}")
+            };
 
         /// <summary>
         /// Updates project in database.

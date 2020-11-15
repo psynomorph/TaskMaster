@@ -1,19 +1,32 @@
 ﻿@using TaskMaster.Models
+@using TaskMaster.ViewModels
+@using Microsoft.AspNetCore.Http.Extensions
 @using static TaskMaster.Helpers.RouteNames
 
-@model IEnumerable<Project>
+@model ProjectsListPageViewModel
 
 @{
     Layout = "_ListLayout";
 
     string title = "Projects";
     ViewData["Title"] = title;
+
+    IEnumerable<SelectListItem> priorities = Enumerable.Range(1, 10)
+        .Select(i => new SelectListItem(i.ToString(), i.ToString()));
 }
 
 <h1>@title</h1>
 @Html.RouteLink("Craete new", CreateProjectPageRouteName, new object(), new { @class = "btn btn-primary float-right" })
+
 <div class="row">
-    @foreach (var project in Model)
+    <div class="col form-group">
+        <label asp-for="@Model.Sort">Sort</label>
+        <select asp-for="@Model.Sort" asp-items="@Html.GetEnumSelectList<SortState>()" id="sort-selector" class="form-element"></select>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var project in Model.Projects)
     {
         <div class="card col-12">
             <div class="card-body">
@@ -56,3 +69,101 @@
         </div>
     }
 </div>
+
+<pagination page-number="@Model.PageInfo.PageNumber" items-on-page="@Model.PageInfo.ElementsOnPage" items-count="@Model.ProjectsCount" page-param-name="page" page-uri="@Context.Request.GetEncodedUrl()">
+</pagination>
+
+@section Sidebar {
+    <div class="card">
+        <div class="card-body" id="filter">
+            <h3 class="card-title">Filters</h3>
+            <div class="form-row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="@Model.Filtering.MinPriority">Minimum priority</label>
+                    <select asp-for="@Model.Filtering.MinPriority" asp-items="@priorities" class="form-element" name="MinPriority"></select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="@Model.Filtering.MaxPriority">Maximum priority</label>
+                    <select asp-for="@Model.Filtering.MaxPriority" asp-items="@priorities" class="form-element" name="MaxPriority"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <label asp-for="@Model.Filtering.MinBeginningDate">Beginning date from</label>
+                    <input asp-for="@Model.Filtering.MinBeginningDate" type="date" class="form-element" name="MinBeginningDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <label asp-for="@Model.Filtering.MaxBeginningDate">Beginning date to</label>
+                    <input asp-for="@Model.Filtering.MaxBeginningDate" type="date" class="form-element" name="MaxBeginningDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <label asp-for="@Model.Filtering.MinCompletionDate">Completion date from</label>
+                    <input asp-for="@Model.Filtering.MinCompletionDate" type="date" class="form-element" name="MinCompletionDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <label asp-for="@Model.Filtering.MaxCompletionDate">Completion date to</label>
+                    <input asp-for="@Model.Filtering.MaxCompletionDate" type="date" class="form-element" name="MaxCompletionDate">
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        (function () {
+
+            const sortSelector = document.getElementById("sort-selector")
+            const filter = document.getElementById("filter")
+
+            // Returns value of selected option of select element.
+            const getSelectedValue = selector => {
+                const selectedOption = selector.querySelector("option:checked")
+                return selectedOption.value
+            }
+
+            // Listen changes of sorting select and updates page
+            const updateSort = () => {
+                const selectedValue = getSelectedValue(sortSelector)
+
+                const url = new URL(window.location.href)
+                url.searchParams.set("sort", selectedValue)
+                url.searchParams.set("page", "1")
+                window.location.href = url.toString()
+            }
+
+            // Listen changes of filtering configuration fields and uodates page
+            const updateFilter = () => {
+                const inputs = filter.getElementsByTagName("input")
+                const selects = filter.getElementsByTagName("select")
+                const url = new URL(window.location.href)
+
+                for (input of inputs) {
+                    if (input.value) {
+                        url.searchParams.set(input.name, input.value)
+                    }
+                }
+
+                for (select of selects) {
+                    const selectedValue = getSelectedValue(select)
+                    if (selectedValue) {
+                        url.searchParams.set(select.name, selectedValue)
+                    }
+                }
+
+                url.searchParams.set("page", "1")
+
+                window.location.href = url.toString()
+            }
+
+            sortSelector.addEventListener("change", updateSort)
+            filter.addEventListener("change", updateFilter)
+        })()
+    </script>
+}

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
 using TaskMaster.Models;
 using TaskMaster.Services;
-
+using TaskMaster.ViewModels;
 using static TaskMaster.Helpers.RouteNames;
 
 namespace TaskMaster.Controllers
@@ -13,7 +14,13 @@ namespace TaskMaster.Controllers
     /// </summary>
     public class ProjectsController : Controller
     {
+
         #region Private Fields
+
+        /// <summary>
+        /// Count of project on page.
+        /// </summary>
+        private const int ElementsOnPageCount = 20;
 
         /// <summary>
         /// Employee repository.
@@ -44,6 +51,32 @@ namespace TaskMaster.Controllers
         #endregion Public Constructors
 
         #region Public Methods
+
+        /// <summary>
+        /// Add employee with id <paramref name="memberId"/> to list of project <paramref name="projectId"/> members.
+        /// </summary>
+        /// <param name="projectId">Project identifier.</param>
+        /// <param name="memberId">Employee identifier.</param>
+        [Route("project/{projectId}/addMember/{memberId}", Name = AddEmployeeToProjectMembersRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> AddMember(int projectId, int memberId)
+        {
+            var project = await _projectsRepository.GetProjectAsync(projectId);
+            if (project is null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _personsRepository.GetEmployeeAsync(memberId);
+            if (employee is null)
+            {
+                return NotFound();
+            }
+
+            await _projectsRepository.AddProjectMemberAsync(project, employee);
+
+            return RedirectToRoute(ProjectPageRouteName, new { id = project.Id });
+        }
 
         /// <summary>
         /// Returns project creation page.
@@ -148,10 +181,32 @@ namespace TaskMaster.Controllers
         /// </summary>
         [Route("", Name = ProjectsListPageRouteName)]
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(SortState? sort, int? page, FilteringModel filtering)
         {
-            var projects = await _projectsRepository.GetProjectsAsync();
-            return View(projects);
+            sort = sort ?? SortState.NameAsc;
+            page = page ?? 1;
+
+            var pageInfo = new PageInfo(page.Value, ElementsOnPageCount);
+
+            var projectsCount = await _projectsRepository.GetProjectCountAsync(filtering: filtering);
+
+            if (pageInfo.GetPagesCount(projectsCount) < pageInfo.PageNumber && pageInfo.PageNumber != 1)
+            {
+                return NotFound();
+            }
+
+            var projects = await _projectsRepository.GetProjectsAsync(sort: sort, pageInfo: pageInfo, filtering: filtering);
+
+            var viewModel = new ProjectsListPageViewModel()
+            { 
+                Projects = projects,
+                Sort = sort.Value,
+                PageInfo =  pageInfo,
+                ProjectsCount = projectsCount,
+                Filtering = filtering
+            };
+
+            return View(viewModel);
         }
 
         /// <summary>
@@ -175,32 +230,6 @@ namespace TaskMaster.Controllers
             LoadMessage();
 
             return View("Project", project);
-        }
-
-        /// <summary>
-        /// Add employee with id <paramref name="memberId"/> to list of project <paramref name="projectId"/> members.
-        /// </summary>
-        /// <param name="projectId">Project identifier.</param>
-        /// <param name="memberId">Employee identifier.</param>
-        [Route("project/{projectId}/addMember/{memberId}", Name = AddEmployeeToProjectMembersRouteName)]
-        [HttpGet]
-        public async Task<IActionResult> AddMember(int projectId, int memberId)
-        {
-            var project = await _projectsRepository.GetProjectAsync(projectId);
-            if (project is null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _personsRepository.GetEmployeeAsync(memberId);
-            if (employee is null)
-            {
-                return NotFound();
-            }
-
-            await _projectsRepository.AddProjectMemberAsync(project, employee);
-
-            return RedirectToRoute(ProjectPageRouteName, new { id = project.Id });
         }
 
         /// <summary>
@@ -264,10 +293,12 @@ namespace TaskMaster.Controllers
 
         #endregion Public Methods
 
+        #region Private Methods
+
         /// <summary>
         /// Loads message from session to ViewBag.
         /// </summary>
-        public void LoadMessage()
+        private void LoadMessage()
         {
             var session = Request.HttpContext.Session;
             ViewBag.Message = session.GetString("message");
@@ -283,5 +314,8 @@ namespace TaskMaster.Controllers
             var session = Request.HttpContext.Session;
             session.SetString("message", message);
         }
+
+        #endregion Private Methods
+
     }
 }

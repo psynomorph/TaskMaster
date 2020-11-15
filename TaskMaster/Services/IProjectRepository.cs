@@ -55,5 +55,21 @@ namespace TaskMaster.Services
         /// <param name="employee">Employee.</param>
         /// <returns></returns>
         Task SetLeader(Project project, Employee employee);
+
+        /// <summary>
+        /// Returns all projects in repository sorted by rule defined in <paramref name="sort"/>.
+        /// </summary>
+        /// <param name="sort">Property and direction of sorting enum.</param>
+        /// <param name="filtering">Params of items filtering.</param>
+        /// <param name="pageInfo">Info about page</param>
+        /// <returns>Collection of projects.</returns>
+        Task<IEnumerable<Project>> GetProjectsAsync(SortState? sort = null, PageInfo pageInfo = null, FilteringModel filtering = null);
+
+        /// <summary>
+        /// Returns count of projects that match the filter.
+        /// </summary>
+        /// <param name="filtering">Params of filter.</param>
+        /// <returns>Count of projects matched by filter.</returns>
+        Task<int> GetProjectCountAsync(FilteringModel filtering);
     }
 }
